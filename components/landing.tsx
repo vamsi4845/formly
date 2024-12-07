@@ -52,7 +52,7 @@ export function Landing() {
       <header className="flex items-center justify-between p-4 md:p-6">
         <div className="flex items-center gap-2">
           <div className="h-6 w-6 bg-orange-500/20 rounded" />
-          <span className="font-semibold text-gray-800">FormKit</span>
+          <span className="font-semibold text-gray-800">Formly</span>
           <span className="rounded bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-800">KickStart</span>
         </div>
         <div className="flex items-center gap-4">
