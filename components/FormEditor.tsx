@@ -84,7 +84,30 @@ const DraggableElement = ({ type, icon: Icon }) => {
   )
 }
 
-const FormElement = ({ element, removeElement }) => {
+const FormElement = ({ element, index, removeElement }) => {
+  const ref = useRef(null)
+
+  const [{ isDragging }, drag] = useDrag({
+    type: 'formElement',
+    item: { id: element.id, index },
+    collect: (monitor) => ({
+      isDragging: !!monitor.isDragging(),
+    }),
+  })
+
+  const [, drop] = useDrop({
+    accept: 'formElement',
+    hover: (item, monitor) => {
+      if (!ref.current) return
+      const dragIndex = item.index
+      const hoverIndex = index
+      if (dragIndex === hoverIndex) return
+      moveElement(dragIndex, hoverIndex)
+      item.index = hoverIndex
+    }
+  })
+
+  drag(drop(ref))
   switch (element.type) {
     case 'Text Input':
       return (
@@ -159,14 +182,33 @@ const FormElement = ({ element, removeElement }) => {
 }
 
 const FormPreview = ({ elements, updateElement, removeElement }) => {
+  const moveElement = (dragIndex, hoverIndex) => {
+    const dragElement = elements[dragIndex]
+    const newElements = [...elements]
+    newElements.splice(dragIndex, 1)
+    newElements.splice(hoverIndex, 0, dragElement)
+    updateElement(newElements)
+  }
+
   const [, drop] = useDrop({
     accept: 'formElement',
-    drop: (item, monitor) => {
-      if (monitor.didDrop()) {
-        return
+    drop: (item) => {
+      if (!item.id) {
+        const elementType = FORM_ELEMENTS.find(el => el.type === item.type)
+        if (!elementType) return
+
+        const elementId = crypto.randomUUID()
+        const newElement = {
+          id: elementId,
+          type: item.type,
+          config: {
+            ...elementType.defaultConfig,
+            name: `field_${elementId}`,
+          }
+        }
+        
+        updateElement([...elements, newElement])
       }
-      const newElement = { id: Date.now(), ...item }
-      updateElement(newElement)
     },
   })
 
@@ -178,9 +220,13 @@ const FormPreview = ({ elements, updateElement, removeElement }) => {
       </CardHeader>
       <CardContent>
         <ScrollArea className="h-[500px] w-full rounded-md border p-4" ref={drop}>
-          {elements.map((element) => (
+          {elements.map((element, index) => (
             <div key={element.id} className="mb-4 p-4 bg-accent rounded-md relative group">
-              <FormElement element={element} />
+              <FormElement 
+                element={element} 
+                index={index}
+                removeElement={removeElement}
+              />
               <Button
                 variant="ghost"
                 size="icon"
@@ -320,18 +366,22 @@ export function FormEditor() {
     }
   }, [formElements])
 
-  const updateElement = (newElement) => {
+  const updateElement = (newElements) => {
     try {
-      setFormElements((prevElements) => [...prevElements, newElement])
-      toast({
-        title: "Element added",
-        description: `${newElement.type} has been added to your form.`,
-      })
+      if (Array.isArray(newElements)) {
+        setFormElements(newElements)
+      } else {
+        setFormElements((prevElements) => [...prevElements, newElements])
+        toast({
+          title: "Element added",
+          description: `${newElements.type} has been added to your form.`,
+        })
+      }
     } catch (error) {
-      console.error("Error adding element:", error)
+      console.error("Error updating elements:", error)
       toast({
         title: "Error",
-        description: "Failed to add element. Please try again.",
+        description: "Failed to update elements. Please try again.",
         variant: "destructive",
       })
     }
