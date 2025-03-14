@@ -8,9 +8,12 @@ import { Switch } from "@/components/ui/switch"
 import { Github, Sparkles, Upload } from "lucide-react"
 import { motion } from "framer-motion"
 import Link from 'next/link'
+import { SignInButton } from '@clerk/nextjs'
+import { useRouter } from 'next/navigation'
 
 export function Landing() {
   const [isProInputs, setIsProInputs] = useState(false)
+  const router = useRouter()
 
   const fadeIn = {
     initial: { opacity: 0, y: 20 },
@@ -56,11 +59,14 @@ export function Landing() {
           <span className="rounded bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-800">KickStart</span>
         </div>
         <div className="flex items-center gap-4">
-          <Button variant="ghost" className="text-gray-600 hover:text-gray-900">Pricing</Button>
-          <Link href="/forms/77"> Get Started</Link>
+          {/* <Button variant="ghost" className="text-gray-600 hover:text-gray-900">Pricing</Button>
+          <Link href="/dashboard/forms/11"> Get Started</Link>
           <Button variant="outline" className="text-gray-600 hover:text-gray-900">
             <Github className="mr-2 h-4 w-4" />
             Sign in
+          </Button> */}
+          <Button  onClick={() => router.push("/dashboard/11")} >
+              Get Started
           </Button>
         </div>
       </header>
