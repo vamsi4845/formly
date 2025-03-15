@@ -65,9 +65,12 @@ export function Landing() {
             <Github className="mr-2 h-4 w-4" />
             Sign in
           </Button> */}
-          <Button  onClick={() => router.push("/dashboard/11")} >
+          <Button effect="shineHover" variant="login"  onClick={() => router.push("/dashboard/11")}  >
               Get Started
           </Button>
+          <button className="btn btn-primary"  onClick={() => router.push("/dashboard/11")}  >
+              Get Started
+          </button>
         </div>
       </header>
       <main className="mx-auto max-w-4xl px-4 py-12 text-center md:py-24">
